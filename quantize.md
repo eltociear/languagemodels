@@ -1,4 +1,10 @@
-# Experiments Quanizing Modern LLMs for ONNX
+# Quantizing Model Weights for Faster Inference
+
+Naive CPU inference via the `transformers` package used FP32 weights. This requires 4x memory in bytes for each model parameter. This puts models larger than ~2 billion parameters out of reach for common consumer systems.
+
+Quantization allows for faster inference and lower memory consumption by decreasing the number of bits used to store parameters. Common choices are FP16, BF16, int8, and int4.
+
+## Notes
 
 
 [Example export for GPT2](https://gist.github.com/Norod/3495e86e7224031e1dd071af382d0c86)
@@ -11,7 +17,6 @@
 
 [Optimum ONNX Runtime Docs](https://huggingface.co/docs/optimum/v1.8.6/onnxruntime/overview)
 
-TODO
-----
+## TODO
 
 Pythia-based models do not appear to be [supported by ONNX yet](https://github.com/huggingface/optimum/issues/555)
