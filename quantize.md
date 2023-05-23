@@ -4,6 +4,16 @@ Naive CPU inference via the `transformers` package used FP32 weights. This requi
 
 Quantization allows for faster inference and lower memory consumption by decreasing the number of bits used to store parameters. Common choices are FP16, BF16, int8, and int4.
 
+## Possible Options
+
+### ONNX Runtime
+
+The ONNX runtime provides a means to convert `transformers` models in `onnx` models, quantize them, and execute them more efficiently. It should be possible to run most common decoder-only models more efficiently with ONNX. It is more challenging and less memory efficient for models like T5 that include and encoder and decoder.
+
+## ggml
+
+ggml is the library powering llama.cpp and similar projects. It is an effective way to run inference, but it does not currently have simple Python bindings for cutting-edge models
+
 ## Notes
 
 
