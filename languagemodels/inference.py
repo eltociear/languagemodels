@@ -164,15 +164,28 @@ def convert_chat(prompt):
     >>> convert_chat("<|system|>A helpful assistant<|endoftext|>" \\
     ...              "<|prompter|>What time is it?<|endoftext|>" \\
     ...              "<|assistant|>")
-    'A helpful assistant\\n\\n### Input:\\nWhat time is it?\\n\\n### Response:\\n'
+    'A helpful assistant\\n\\nUser:What time is it?\\n\\nAssistant:'
 
     >>> convert_chat("<|prompter|>Who are you?<|endoftext|>" \\
     ...              "<|assistant|>")
-    '### Input:\\nWho are you?\\n\\n### Response:\\n'
+    'User:Who are you?\\n\\nAssistant:'
 
     >>> convert_chat("<|prompter|>What is 1+1?<|endoftext|>\\n\\n" \\
     ...              "<|assistant|>")
-    '### Input:\\nWhat is 1+1?\\n\\n### Response:\\n'
+    'User:What is 1+1?\\n\\nAssistant:'
+
+    >>> convert_chat("<|system|>A friend<|endoftext|>" \\
+    ...              "<|prompter|>Hi<|endoftext|>" \\
+    ...              "<|assistant|>Yo<|endoftext|>" \\
+    ...              "<|prompter|>We good?<|endoftext|>" \\
+    ...              "<|assistant|>")
+    'A friend\\n\\nUser:Hi\\n\\nAssistant:Yo\\n\\nUser:We good?\\n\\nAssistant:'
+    >>> convert_chat("\\n<|system|>Be nice<|endoftext|>" \\
+    ...              "<|prompter|>brb\\n<|endoftext|>" \\
+    ...              "<|assistant|>k<|endoftext|>" \\
+    ...              "<|prompter|>back<|endoftext|>" \\
+    ...              "<|assistant|>")
+    'Be nice\\n\\nUser:brb\\n\\nAssistant:k\\n\\nUser:back\\n\\nAssistant:'
 
     >>> convert_chat("<|user|>Who are you?<|endoftext|>" \\
     ...              "<|assistant|>")
@@ -182,8 +195,8 @@ def convert_chat(prompt):
     """
 
     prompt = re.sub(r"\s*<\|system\|>\s*", "", prompt)
-    prompt = re.sub(r"\s*<\|prompter\|>\s*", "### Input:\n", prompt)
-    prompt = re.sub(r"\s*<\|assistant\|>\s*", "### Response:\n", prompt)
+    prompt = re.sub(r"\s*<\|prompter\|>\s*", "User:", prompt)
+    prompt = re.sub(r"\s*<\|assistant\|>\s*", "Assistant:", prompt)
     prompt = re.sub(r"\s*<\|endoftext\|>\s*", "\n\n", prompt)
 
     special_token_match = re.search(r"<\|.*?\|>", prompt)
