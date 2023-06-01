@@ -3,6 +3,23 @@ import os
 from transformers import pipeline, T5Tokenizer
 import re
 from llama_cpp import Llama
+import urllib.request
+
+from tqdm import tqdm
+
+
+class DownloadProgressBar(tqdm):
+    def update_to(self, b=1, bsize=1, tsize=None):
+        if tsize is not None:
+            self.total = tsize
+        self.update(b * bsize - self.n)
+
+
+def download_url(url, output_path):
+    with DownloadProgressBar(
+        unit="B", unit_scale=True, miniters=1, desc=url.split("/")[-1]
+    ) as t:
+        urllib.request.urlretrieve(url, filename=output_path, reporthook=t.update_to)
 
 
 class InferenceException(Exception):
@@ -91,15 +108,31 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
     if os.environ.get("oa_key"):
         return generate_oa("text-babbage-001", prompt, max_tokens)
 
-    if 'llama-3b' not in modelcache:
-        modelcache['llama-3b'] = Llama(model_path="open-llama-3b-q5_1.bin")
+    if "llama-3b" not in modelcache:
+        cache_dir = os.path.expanduser(os.path.join(
+            os.getenv("XDG_CACHE_HOME", "~/.cache"), "langaugemodels"
+        ))
 
-    modelcache['llama-3b'].create_completion(
+        os.makedirs(cache_dir, exist_ok=True)
+
+        modelfile = os.path.join(cache_dir, "open-llama-3b-q5_1.bin")
+
+        if not os.path.isfile(modelfile):
+            url = "https://huggingface.co/SlyEcho/open_llama_3b_ggml/resolve/main/"
+            url = url + "open-llama-3b-q5_1.bin"
+
+            download_url(url, modelfile)
+
+        modelcache["llama-3b"] = Llama(model_path=modelfile)
+
+    return modelcache["llama-3b"].create_completion(
         prompt,
         repeat_penalty=repetition_penalty,
         top_p=0.9,
+        stop=[],
+        max_tokens=max_tokens,
         temperature=temperature,
-    )['choices'][0]['text']
+    )["choices"][0]["text"]
 
 
 def get_pipeline(task, model):
