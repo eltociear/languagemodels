@@ -108,28 +108,33 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
     if os.environ.get("oa_key"):
         return generate_oa("text-babbage-001", prompt, max_tokens)
 
-    if "llama-3b" not in modelcache:
+    url = "https://huggingface.co/Sovenok-Hacker/nanoalpaca-3b/resolve/main/"
+    model = "nano-alpaca-3b-q4_0-ggml.bin"
+
+    if model not in modelcache:
         cache_dir = os.path.expanduser(os.path.join(
             os.getenv("XDG_CACHE_HOME", "~/.cache"), "langaugemodels"
         ))
 
         os.makedirs(cache_dir, exist_ok=True)
 
-        modelfile = os.path.join(cache_dir, "open-llama-3b-q5_1.bin")
+        modelfile = os.path.join(cache_dir, model)
 
         if not os.path.isfile(modelfile):
-            url = "https://huggingface.co/SlyEcho/open_llama_3b_ggml/resolve/main/"
-            url = url + "open-llama-3b-q5_1.bin"
+            download_url(url + model, modelfile)
 
-            download_url(url, modelfile)
+        modelcache[model] = Llama(model_path=modelfile)
 
-        modelcache["llama-3b"] = Llama(model_path=modelfile)
+    prompt = 'Below is an instruction that describes a task. '\
+             'Write a response that appropriately completes the request.\n\n'\
+             f'### Instruction:\n{prompt}'\
+             '\n\n### Response:\n'
 
-    return modelcache["llama-3b"].create_completion(
+    return modelcache[model].create_completion(
         prompt,
         repeat_penalty=repetition_penalty,
         top_p=0.9,
-        stop=[],
+        stop=['\n'],
         max_tokens=max_tokens,
         temperature=temperature,
     )["choices"][0]["text"]
