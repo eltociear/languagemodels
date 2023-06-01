@@ -2,6 +2,7 @@ import requests
 import os
 from transformers import pipeline, T5Tokenizer
 import re
+from llama_cpp import Llama
 
 
 class InferenceException(Exception):
@@ -90,11 +91,12 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
     if os.environ.get("oa_key"):
         return generate_oa("text-babbage-001", prompt, max_tokens)
 
-    generate = get_pipeline("text2text-generation", "google/flan-t5-large")
+    if 'llama-3b' not in modelcache:
+        modelcache['llama-3b'] = Llama(model_path="open-llama-3b-q5_1.bin")
 
-    return generate(
+    modelcache['llama-3b'].create_completion(
         prompt,
-        repetition_penalty=repetition_penalty,
+        repeat_penalty=repetition_penalty,
         top_p=0.9,
         temperature=temperature,
         do_sample=temperature > 0.1,
