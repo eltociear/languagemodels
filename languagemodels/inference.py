@@ -109,12 +109,7 @@ def get_model(url, model):
     return modelcache[model]
 
 
-def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalty=1.2):
-    """Generates one completion for a prompt using an instruction-tuned model
-
-    This may use a local model, or it may make an API call to an external
-    model if API keys are available.
-    """
+def generate_completion(prompt, max_tokens=200, temperature=0.1, repetition_penalty=1.2):
     if os.environ.get("ts_key") or os.environ.get("ts_server"):
         return generate_ts("flan_t5_xxl_q4", prompt, max_tokens)
 
@@ -122,6 +117,23 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
         return generate_oa("text-babbage-001", prompt, max_tokens)
 
     model = get_model("SlyEcho/open_llama_3b_ggml", "open-llama-3b-q5_1.bin")
+
+    return model.create_completion(
+        prompt,
+        repeat_penalty=repetition_penalty,
+        top_p=0.1,
+        stop=["\n"],
+        max_tokens=max_tokens,
+        temperature=temperature,
+    )["choices"][0]["text"]
+
+
+def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalty=1.2):
+    """Generates one completion for a prompt using an instruction-tuned model
+
+    This may use a local model, or it may make an API call to an external
+    model if API keys are available.
+    """
 
     instruction = prompt.split(":")[0].strip()
     context = ":".join(prompt.split(":")[1:]).strip()
@@ -138,11 +150,9 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
 
     prompt += "\n\n### Response:\n"
 
-    return model.create_completion(
+    return generate_completion(
         prompt,
         repeat_penalty=repetition_penalty,
-        top_p=0.1,
-        stop=["\n"],
         max_tokens=max_tokens,
         temperature=temperature,
     )["choices"][0]["text"]

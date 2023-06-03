@@ -2,7 +2,7 @@ import requests
 import datetime
 import json
 
-from languagemodels.inference import generate_instruct, convert_chat, list_tokens
+from languagemodels.inference import generate_instruct, generate_completion, convert_chat, list_tokens
 from languagemodels.embeddings import RetrievalContext
 
 docs = RetrievalContext()
@@ -55,7 +55,7 @@ def complete(prompt: str) -> str:
     >>> complete("She hid in her room until") #doctest: +SKIP
     'she was sure she was safe'
     """
-    return generate_instruct(prompt, max_tokens=200, temperature=0.7)
+    return generate_completion(prompt, max_tokens=200, temperature=0.7)
 
 
 def do(prompt: str) -> str:
