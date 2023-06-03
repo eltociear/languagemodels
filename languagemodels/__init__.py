@@ -2,12 +2,7 @@ import requests
 import datetime
 import json
 
-from languagemodels.inference import (
-    generate_instruct,
-    get_pipeline,
-    convert_chat,
-    list_tokens,
-)
+from languagemodels.inference import generate_instruct, convert_chat, list_tokens
 from languagemodels.embeddings import RetrievalContext
 
 docs = RetrievalContext()
@@ -140,9 +135,7 @@ def extract_answer(question: str, context: str) -> str:
     'Guido van Rossum'
     """
 
-    qa = get_pipeline("question-answering", "distilbert-base-cased-distilled-squad")
-
-    return qa(question, context)["answer"]
+    return do(f"{question}: {context}")
 
 
 def classify(doc: str, label1: str, label2: str) -> str:
@@ -164,15 +157,7 @@ def classify(doc: str, label1: str, label2: str) -> str:
     'ocean'
     """
 
-    classifier = get_pipeline(
-        "zero-shot-classification", "valhalla/distilbart-mnli-12-1"
-    )
-
-    result = classifier(doc, [label1, label2])
-
-    top = max(zip(result["scores"], result["labels"]), key=lambda r: r[0])
-
-    return top[1]
+    return do(f"Classify as {label1} or {label2}: {doc}")
 
 
 def store_doc(doc: str) -> None:
