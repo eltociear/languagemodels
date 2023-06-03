@@ -1,6 +1,5 @@
 import requests
 import os
-from transformers import pipeline, T5Tokenizer
 import re
 from llama_cpp import Llama
 import urllib.request
@@ -30,17 +29,11 @@ modelcache = {}
 
 
 def list_tokens(prompt):
-    tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-large")
-    input_ids = tokenizer.encode(
-        prompt,
-        return_tensors="pt",
-    )
+    """Returns a list of token (name, id) tuples
 
-    ids = [int(id) for id in input_ids[0]]
-
-    tokens = tokenizer.convert_ids_to_tokens(input_ids[0], skip_special_tokens=True)
-
-    return list(zip(tokens, ids))
+    TODO: Implement this using ggml backend
+    """
+    return []
 
 
 def generate_ts(engine, prompt, max_tokens=200):
@@ -125,34 +118,27 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
 
         modelcache[model] = Llama(model_path=modelfile)
 
-    prompt = 'Below is an instruction that describes a task. '\
-             'Write a response that appropriately completes the request.\n\n'\
-             f'### Instruction:\n{prompt}'\
-             '\n\n### Response:\n'
+    instruction = prompt.split(":")[0].strip()
+    context = ":".join(prompt.split(":")[1:]).strip()
+
+    prompt = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n"
+    prompt += f"### Instruction:\n{instruction}"
+
+    if context:
+        prompt += f"\n\n### Input:\n{context}"
+
+    prompt += "\n\n### Response:\n"
+
+    print(prompt)
 
     return modelcache[model].create_completion(
         prompt,
         repeat_penalty=repetition_penalty,
-        top_p=0.9,
-        stop=['\n'],
+        top_p=0.1,
+        stop=["\n"],
         max_tokens=max_tokens,
         temperature=temperature,
     )["choices"][0]["text"]
-
-
-def get_pipeline(task, model):
-    """Gets a pipeline instance
-
-    This is thin wrapper around the pipeline constructor to provide caching
-    across calls.
-    """
-
-    if model not in modelcache:
-        modelcache[model] = pipeline(
-            task, model=model, model_kwargs={"low_cpu_mem_usage": True}
-        )
-
-    return modelcache[model]
 
 
 def convert_chat(prompt):

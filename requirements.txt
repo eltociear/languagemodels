@@ -1,5 +1,2 @@
-torch
-transformers
 sentence-transformers
-accelerate
 llama-cpp-python
