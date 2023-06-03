@@ -101,8 +101,8 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
     if os.environ.get("oa_key"):
         return generate_oa("text-babbage-001", prompt, max_tokens)
 
-    url = "https://huggingface.co/Sovenok-Hacker/nanoalpaca-3b/resolve/main/"
-    model = "nano-alpaca-3b-q4_0-ggml.bin"
+    url = "https://huggingface.co/SlyEcho/open_llama_3b_ggml/resolve/main/"
+    model = "open-llama-3b-q5_1.bin"
 
     if model not in modelcache:
         cache_dir = os.path.expanduser(os.path.join(
