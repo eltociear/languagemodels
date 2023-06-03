@@ -131,8 +131,6 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
 
     prompt += "\n\n### Response:\n"
 
-    print(prompt)
-
     return modelcache[model].create_completion(
         prompt,
         repeat_penalty=repetition_penalty,
