@@ -1,18 +1,4 @@
-import os
-from llama_cpp import Llama
-
-url = "https://huggingface.co/SlyEcho/open_llama_3b_ggml/resolve/main/"
-model = "open-llama-3b-q5_1.bin"
-
-cache_dir = os.path.expanduser(
-    os.path.join(os.getenv("XDG_CACHE_HOME", "~/.cache"), "langaugemodels")
-)
-
-os.makedirs(cache_dir, exist_ok=True)
-
-modelfile = os.path.join(cache_dir, model)
-
-model = Llama(model_path=modelfile, embedding=True)
+from languagemodels.inference import get_model
 
 
 def cosine_similarity(a, b):
@@ -46,6 +32,7 @@ class RetrievalContext:
 
     def __init__(self):
         self.clear()
+        self.model = get_model("SlyEcho/open_llama_3b_ggml", "open-llama-3b-q5_1.bin")
 
     def clear(self):
         self.docs = []
@@ -54,14 +41,14 @@ class RetrievalContext:
     def store(self, doc):
         if doc not in self.docs:
             self.docs.append(doc)
-            embedding = model.embed(doc)
+            embedding = self.model.embed(doc)
             self.embeddings.append(embedding)
 
     def get_match(self, query):
         if len(self.docs) == 0:
             return None
 
-        query_embedding = model.embed(query)
+        query_embedding = self.model.embed(query)
 
         scores = [cosine_similarity(query_embedding, e) for e in self.embeddings]
 

@@ -89,6 +89,26 @@ def generate_oa(engine, prompt, max_tokens=200, temperature=0):
         raise InferenceException(f"OpenAI error: {resp}")
 
 
+def get_model(url, model):
+    if model not in modelcache:
+        cache_dir = os.path.expanduser(
+            os.path.join(os.getenv("XDG_CACHE_HOME", "~/.cache"), "langaugemodels")
+        )
+
+        os.makedirs(cache_dir, exist_ok=True)
+
+        modelfile = os.path.join(cache_dir, model)
+
+        if not os.path.isfile(modelfile):
+            download_url(
+                "https://huggingface.co/" + url + "/resolve/main/" + model, modelfile
+            )
+
+        modelcache[model] = Llama(model_path=modelfile, embedding=True)
+
+    return modelcache[model]
+
+
 def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalty=1.2):
     """Generates one completion for a prompt using an instruction-tuned model
 
@@ -101,22 +121,7 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
     if os.environ.get("oa_key"):
         return generate_oa("text-babbage-001", prompt, max_tokens)
 
-    url = "https://huggingface.co/SlyEcho/open_llama_3b_ggml/resolve/main/"
-    model = "open-llama-3b-q5_1.bin"
-
-    if model not in modelcache:
-        cache_dir = os.path.expanduser(
-            os.path.join(os.getenv("XDG_CACHE_HOME", "~/.cache"), "langaugemodels")
-        )
-
-        os.makedirs(cache_dir, exist_ok=True)
-
-        modelfile = os.path.join(cache_dir, model)
-
-        if not os.path.isfile(modelfile):
-            download_url(url + model, modelfile)
-
-        modelcache[model] = Llama(model_path=modelfile)
+    model = get_model("SlyEcho/open_llama_3b_ggml", "open-llama-3b-q5_1.bin")
 
     instruction = prompt.split(":")[0].strip()
     context = ":".join(prompt.split(":")[1:]).strip()
@@ -133,7 +138,7 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
 
     prompt += "\n\n### Response:\n"
 
-    return modelcache[model].create_completion(
+    return model.create_completion(
         prompt,
         repeat_penalty=repetition_penalty,
         top_p=0.1,
