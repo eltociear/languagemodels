@@ -105,9 +105,9 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
     model = "open-llama-3b-q5_1.bin"
 
     if model not in modelcache:
-        cache_dir = os.path.expanduser(os.path.join(
-            os.getenv("XDG_CACHE_HOME", "~/.cache"), "langaugemodels"
-        ))
+        cache_dir = os.path.expanduser(
+            os.path.join(os.getenv("XDG_CACHE_HOME", "~/.cache"), "langaugemodels")
+        )
 
         os.makedirs(cache_dir, exist_ok=True)
 
