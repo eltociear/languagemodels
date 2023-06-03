@@ -121,9 +121,11 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
     instruction = prompt.split(":")[0].strip()
     context = ":".join(prompt.split(":")[1:]).strip()
 
-    prompt = "Below is an instruction that describes a task, "\
-             "paired with an input that provides further context. "\
-             "Write a response that appropriately completes the request.\n\n"
+    prompt = (
+        "Below is an instruction that describes a task, "
+        "paired with an input that provides further context. "
+        "Write a response that appropriately completes the request.\n\n"
+    )
     prompt += f"### Instruction:\n{instruction}"
 
     if context:
