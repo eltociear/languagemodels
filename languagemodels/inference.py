@@ -32,8 +32,16 @@ def list_tokens(prompt):
     """Returns a list of token (name, id) tuples
 
     TODO: Implement this using ggml backend
+
+    >>> list_tokens("Hello world")
+    [('Hello', 27903), (' world', 924)]
     """
-    return []
+
+    model = get_model("SlyEcho/open_llama_3b_ggml", "open-llama-3b-q5_1.bin")
+
+    ids = model.tokenize(prompt.encode(), add_bos=False)
+
+    return [(model.detokenize([i]).decode(), i) for i in ids]
 
 
 def generate_ts(engine, prompt, max_tokens=200):
@@ -109,7 +117,9 @@ def get_model(url, model):
     return modelcache[model]
 
 
-def generate_completion(prompt, max_tokens=200, temperature=0.1, repetition_penalty=1.2):
+def generate_completion(
+    prompt, max_tokens=200, temperature=0.1, repetition_penalty=1.2
+):
     if os.environ.get("ts_key") or os.environ.get("ts_server"):
         return generate_ts("flan_t5_xxl_q4", prompt, max_tokens)
 

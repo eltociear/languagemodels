@@ -2,7 +2,12 @@ import requests
 import datetime
 import json
 
-from languagemodels.inference import generate_instruct, generate_completion, convert_chat, list_tokens
+from languagemodels.inference import (
+    generate_instruct,
+    generate_completion,
+    convert_chat,
+    list_tokens,
+)
 from languagemodels.embeddings import RetrievalContext
 
 docs = RetrievalContext()
@@ -21,15 +26,14 @@ def print_tokens(prompt: str) -> None:
     Examples:
 
     >>> print_tokens("Hello world")
-    ' Hello' (token 8774)
-    ' world' (token 296)
+    'Hello' (token 27903)
+    ' world' (token 924)
 
     >>> print_tokens("Hola mundo")
-    ' Hol' (token 5838)
-    'a' (token 9)
-    ' mun' (token 13844)
-    'd' (token 26)
-    'o' (token 32)
+    'H' (token 31866)
+    'ola' (token 5607)
+    ' m' (token 290)
+    'undo' (token 24056)
     """
 
     tokens = list_tokens(prompt)
