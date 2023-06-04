@@ -118,7 +118,7 @@ def get_model(url, model):
 
 
 def generate_completion(
-    prompt, max_tokens=200, temperature=0.1, repetition_penalty=1.2
+    prompt, max_tokens=200, temperature=0.1, repeat_penalty=1.2
 ):
     if os.environ.get("ts_key") or os.environ.get("ts_server"):
         return generate_ts("flan_t5_xxl_q4", prompt, max_tokens)
@@ -130,7 +130,7 @@ def generate_completion(
 
     return model.create_completion(
         prompt,
-        repeat_penalty=repetition_penalty,
+        repeat_penalty=repeat_penalty,
         top_p=0.1,
         stop=["\n"],
         max_tokens=max_tokens,
@@ -138,7 +138,7 @@ def generate_completion(
     )["choices"][0]["text"]
 
 
-def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalty=1.2):
+def generate_instruct(prompt, max_tokens=200, temperature=0.1, repeat_penalty=1.2):
     """Generates one completion for a prompt using an instruction-tuned model
 
     This may use a local model, or it may make an API call to an external
@@ -162,7 +162,7 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repetition_penalt
 
     return generate_completion(
         prompt,
-        repeat_penalty=repetition_penalty,
+        repeat_penalty=repeat_penalty,
         max_tokens=max_tokens,
         temperature=temperature,
     )["choices"][0]["text"]
