@@ -165,7 +165,7 @@ def generate_instruct(prompt, max_tokens=200, temperature=0.1, repeat_penalty=1.
         repeat_penalty=repeat_penalty,
         max_tokens=max_tokens,
         temperature=temperature,
-    )["choices"][0]["text"]
+    )
 
 
 def convert_chat(prompt):
