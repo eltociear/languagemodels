@@ -225,24 +225,6 @@ def store_doc(doc: str, name: str = "") -> None:
     docs.store(doc, name)
 
 
-def load_doc(query: str) -> str:
-    """Load a matching document
-
-    A single document that best matches `query` will be returned.
-
-    :param query: Query to compare to stored documents
-    :return: Content of the closest matching document
-
-    Examples:
-
-    >>> store_doc("Paris is in France.")
-    >>> store_doc("The sky is blue.")
-    >>> load_doc("Where is Paris?")
-    'Paris is in France.'
-    """
-    return docs.get_match(query)
-
-
 def get_doc_context(query: str) -> str:
     """Loads context from documents
 

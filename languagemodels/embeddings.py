@@ -34,19 +34,6 @@ class RetrievalContext:
     Example usage:
 
     >>> rc = RetrievalContext()
-    >>> rc.store("Paris is in France.")
-    >>> rc.store("The sky is blue.")
-    >>> rc.store("Mars is a planet.")
-    >>> rc.get_match("Paris is in France.")
-    'Paris is in France.'
-
-    >>> rc.get_match("Where is Paris?")
-    'Paris is in France.'
-
-    >>> rc.clear()
-    >>> rc.get_match("Where is Paris?")
-
-    >>> rc.clear()
     >>> rc.store('Python ' * 232)
     >>> len(rc.chunks)
     4
@@ -65,7 +52,6 @@ class RetrievalContext:
 
     def clear(self):
         self.docs = []
-        self.embeddings = []
         self.chunks = []
         self.chunk_embeddings = []
 
@@ -112,7 +98,6 @@ class RetrievalContext:
         """
 
         if doc not in self.docs:
-            self.embeddings.append(embed(doc))
             self.docs.append(doc)
             self.store_chunks(doc, name)
 
@@ -186,15 +171,3 @@ class RetrievalContext:
         context = "\n\n".join(chunks)
 
         return context
-
-    def get_match(self, query):
-        if len(self.docs) == 0:
-            return None
-
-        query_embedding = embed(query)
-
-        scores = [cosine_similarity(query_embedding, e) for e in self.embeddings]
-        doc_score_pairs = list(zip(self.docs, scores))
-
-        doc_score_pairs = sorted(doc_score_pairs, key=lambda x: x[1], reverse=True)
-        return doc_score_pairs[0][0]
